@@ -18,12 +18,20 @@ app.use(cors());
 
 io.on("connection", (socket) => {
   socket.on("join-room", (roomId, userId) => {
+    socket.onAny((event, ...args) => {
+      console.log(`got event ${event} with args: ${args}`);
+    });
     console.log(`user ${userId} joined ${roomId}`);
     socket.join(roomId);
 
     socket.on("ready", () => {
       console.log(`${userId} is ready`);
       socket.to(roomId).emit("user-connected", userId);
+
+      socket.on("message", (msg) => {
+        console.log(`received msg: ${msg}`);
+        socket.to(roomId).emit("message", msg);
+      });
     });
 
     socket.on("disconnect", () => {
