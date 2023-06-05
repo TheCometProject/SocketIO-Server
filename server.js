@@ -17,20 +17,19 @@ const io = new Server(httpServer, {
 app.use(cors());
 
 io.on("connection", (socket) => {
-  socket.on("join-room", (roomId, userId) => {
-    socket.onAny((event, ...args) => {
-      console.log(`got event ${event} with args: ${args}`);
-    });
+  socket.on("join-room", (roomId, user) => {
+    console.warn(user);
+    const userId = user.userId;
+    
     console.log(`user ${userId} joined ${roomId}`);
+
     socket.join(roomId);
 
     socket.on("ready", () => {
-      console.log(`${userId} is ready`);
-      socket.to(roomId).emit("user-connected", userId);
+      socket.to(roomId).emit("user-connected", user);
 
       socket.on("message", (msg) => {
-        console.log(`received msg: ${msg}`);
-        socket.to(roomId).emit("message", msg);
+        socket.to(roomId).emit("message", msg, user);
       });
     });
 
